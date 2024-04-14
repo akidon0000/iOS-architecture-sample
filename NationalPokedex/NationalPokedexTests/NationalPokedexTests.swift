@@ -1,14 +1,14 @@
 //
-//  QiitaSearcherTests.swift
-//  QiitaSearcherTests
+//  NationalPokedexTests.swift
+//  NationalPokedexTests
 //
-//  Created by Akihiro Matsuyama on 2024/04/02.
+//  Created by Akihiro Matsuyama on 2024/04/05.
 //
 
 import XCTest
-@testable import QiitaSearcher
+@testable import NationalPokedex
 
-final class QiitaSearcherTests: XCTestCase {
+final class NationalPokedexTests: XCTestCase {
 
     override func setUpWithError() throws {
         // Put setup code here. This method is called before the invocation of each test method in the class.

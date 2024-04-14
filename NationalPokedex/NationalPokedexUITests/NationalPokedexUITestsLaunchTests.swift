@@ -1,13 +1,13 @@
 //
-//  QiitaSearcherUITestsLaunchTests.swift
-//  QiitaSearcherUITests
+//  NationalPokedexUITestsLaunchTests.swift
+//  NationalPokedexUITests
 //
-//  Created by Akihiro Matsuyama on 2024/04/02.
+//  Created by Akihiro Matsuyama on 2024/04/05.
 //
 
 import XCTest
 
-final class QiitaSearcherUITestsLaunchTests: XCTestCase {
+final class NationalPokedexUITestsLaunchTests: XCTestCase {
 
     override class var runsForEachTargetApplicationUIConfiguration: Bool {
         true
