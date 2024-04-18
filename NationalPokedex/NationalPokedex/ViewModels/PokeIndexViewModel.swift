@@ -5,13 +5,12 @@
 //  Created by Akihiro Matsuyama on 2024/04/05.
 //
 
-import Combine
+import Observation
 
-class PokeIndexViewModel: ObservableObject {
+@Observable final class PokeIndexViewModel {
     let model: PokeApiModelProtocol
-
-    @Published var pokemons: [Pokemon]
-    @Published var error: ApiError?
+    var pokemons: [Pokemon]
+    var error: ApiError?
 
     init(model: PokeApiModel = PokeApiModel(), pokemons: [Pokemon] = [Pokemon](), error: ApiError? = nil) {
         self.model = model

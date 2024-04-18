@@ -7,12 +7,11 @@
 
 import SwiftUI
 
-import AVFoundation
 struct PokeDetailView: View {
-    @StateObject var viewModel: PokeDetailViewModel
+    @State var viewModel: PokeDetailViewModel
 
     init(viewModel: PokeDetailViewModel = PokeDetailViewModel()) {
-        _viewModel = StateObject(wrappedValue: viewModel)
+        _viewModel = State(wrappedValue: viewModel)
     }
 
     var body: some View {

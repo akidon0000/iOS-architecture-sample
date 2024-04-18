@@ -9,12 +9,12 @@ import SwiftUI
 
 struct PokeIndexView: View {
     @State private var navigatePath = [Pokemon]()
-    @StateObject var viewModel: PokeIndexViewModel
+    @State var viewModel: PokeIndexViewModel
 
     let gridLayout = [GridItem(.adaptive(minimum: 100))]
 
     init(viewModel: PokeIndexViewModel = PokeIndexViewModel()) {
-        _viewModel = StateObject(wrappedValue: viewModel)
+        _viewModel = State(wrappedValue: viewModel)
     }
 
     var body: some View {
