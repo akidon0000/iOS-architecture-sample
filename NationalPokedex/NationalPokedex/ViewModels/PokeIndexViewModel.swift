@@ -26,11 +26,13 @@ class PokeIndexViewModel: ObservableObject {
     func requestMorePokemons() {
         Task {
             let result = await model.getNewPokemons(pokemons: pokemons)
-            switch result {
-            case .success(let updatedPokemons):
-                pokemons = updatedPokemons
-            case .failure(let error):
-                self.error = error
+            await MainActor.run {
+                switch result {
+                case .success(let updatedPokemons):
+                    pokemons = updatedPokemons
+                case .failure(let error):
+                    self.error = error
+                }
             }
         }
     }
