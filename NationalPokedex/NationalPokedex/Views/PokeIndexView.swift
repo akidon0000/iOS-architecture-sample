@@ -8,45 +8,59 @@
 import SwiftUI
 
 struct PokeIndexView: View {
-
     @State private var navigatePath = [Pokemon]()
-    @StateObject var viewModel: PokeSearchViewModel
+    @StateObject var viewModel: PokeIndexViewModel
 
-    init(viewModel: PokeSearchViewModel = PokeSearchViewModel()) {
+    let gridLayout = [GridItem(.adaptive(minimum: 100))]
+
+    init(viewModel: PokeIndexViewModel = PokeIndexViewModel()) {
         _viewModel = StateObject(wrappedValue: viewModel)
     }
 
     var body: some View {
         NavigationStack(path: $navigatePath) {
-            if let error = viewModel.error {
-                Text(error.localizedDescription)
-            } else {
-                List(viewModel.pokemons) { pokemon in
-                    PokeRow(pokemon: pokemon)
-                        .onAppear() {
-                            if pokemon.id == viewModel.pokemons.last?.id {
-                                viewModel.loadStart()
-                            }
+            ScrollView(showsIndicators: false) {
+                if let error = viewModel.error {
+                    Text(error.localizedDescription)
+                    Button("Retry", action: viewModel.loadStart)
+                } else {
+                    LazyVGrid(columns: gridLayout) {
+                        ForEach(viewModel.pokemons) { pokemon in
+                            PokeRow(pokemon: pokemon)
+                                .onTapGesture {
+                                    navigatePath.append(pokemon)
+                                }
+                                .onAppear {
+                                    // 取得済みの最後のポケモンが表示された場合、新たに取得してくる
+                                    if viewModel.pokemons.last?.id == pokemon.id {
+                                        viewModel.requestMorePokemons()
+                                    }
+                                }
                         }
-                        .onTapGesture {
-                            navigatePath.append(pokemon)
-                        }
+                    }
                 }
-                .navigationTitle("Pokémon Index")
-                .navigationDestination(for: Pokemon.self) { pokemon in
-                    PokeDetailView(pokemon: pokemon)
-                }
-                .onAppear {
-                    viewModel.loadStart()
-                }
+            }
+            .navigationTitle("Pokémon Index")
+            .navigationBarTitleDisplayMode(.inline)
+            .background(.white)
+            .padding(10)
+            .ignoresSafeArea(edges: .bottom)
+            .onAppear {
+                viewModel.loadStart()
+            }
+            .navigationDestination(for: Pokemon.self) { pokemon in
+                PokeDetailView(viewModel: PokeDetailViewModel(pokemon: pokemon))
             }
         }
     }
 }
 
-#Preview {
-    NavigationView {
+struct PokeIndexView_Previews: PreviewProvider {
+    static var previews: some View {
         PokeIndexView()
             .previewDisplayName("Default View")
+
+        PokeIndexView(viewModel: PokeIndexViewModel(error: ApiError.responseDataEmpty))
+            .previewDisplayName("Error View")
     }
 }

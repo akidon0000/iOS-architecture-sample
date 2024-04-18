@@ -7,116 +7,83 @@
 
 import SwiftUI
 
+import AVFoundation
 struct PokeDetailView: View {
     @StateObject var viewModel: PokeDetailViewModel
 
-    init(viewModel: PokeDetailViewModel = PokeDetailViewModel(), pokemon: Pokemon) {
+    init(viewModel: PokeDetailViewModel = PokeDetailViewModel()) {
         _viewModel = StateObject(wrappedValue: viewModel)
-        viewModel.pokemon = pokemon
     }
 
     var body: some View {
-        NavigationView {
-            ScrollView {
-                VStack {
-                    Text("No. \(viewModel.pokemon.id.description)  \(viewModel.pokemonSpecies.names[0].name)")
-                        .font(.title)
-                        .fontWeight(.bold)
+        VStack {
+            if let imageUrlStr = viewModel.pokemon.individual.sprites.frontDefault {
+                AsyncImage(url: URL(string: imageUrlStr)) { image in
+                    image.resizable()
+                        .scaleEffect(1.2)
+                } placeholder: {
+                    ProgressView()
+                }
+                .frame(width: 250, height: 250)
+                .padding(20) // 枠線の角が欠けてしまうため
+                .background(
+                    RoundedRectangle(cornerRadius: 150)
+                        .stroke(Color.black, lineWidth: 5)
+                        .padding(3)
+                )
+            }
 
-                    if let imageUrlStr = viewModel.pokemon.sprites.frontDefault {
-                        AsyncImage(url: URL(string: imageUrlStr)) { image in
-                            image.resizable()
-                                .scaleEffect(2.5)
-                        } placeholder: {
-                            ProgressView()
-                        }
-                        .frame(width: 250, height: 250)
-                        .padding()
-                    }
-                    Text(viewModel.pokemonSpecies.genera[0].genus)
+            Text(viewModel.pokemon.species.names.filter{
+                $0.language.name == "ja"
+            }.first?.name ?? "名前取得エラー")
+                .font(.system(size: 40))
+                .fontWeight(.bold)
 
-                    HStack(spacing: 100) {
-                        VStack(spacing: 20) {
-                            Text("おもさ:")
-                            Text("たかさ:")
-                            Text("タイプ:")
-                        }
+            Divider()
 
-                        VStack(spacing: 20) {
-                            Text("\(viewModel.pokemon.weight.description) cg")
-                            Text("\(viewModel.pokemon.height.description) cm")
+            Text("図鑑番号 No. \(viewModel.pokemon.id.description)")
 
-                            HStack {
-                                ForEach(viewModel.pokemon.types) { type in
-                                    Text("\(type.type.name)")
-                                }
-                            }
-                        }
-                    }
+            Text(viewModel.pokemon.species.genera.filter{
+                $0.language.name == "ja"
+            }.first?.genus ?? "属の取得エラー")
 
-                    Spacer()
+            HStack {
+                ForEach(viewModel.pokemon.individual.types) { type in
+                    Text("\(type.type.name)")
+                }
+            }
 
-                    if let error = viewModel.error {
-                        Text(error.localizedDescription)
-                    } else {
-                        if viewModel.isLoading {
-                            ProgressView()
-                                .scaleEffect(x: 3, y: 3, anchor: .center)
-                                .onAppear {
-                                    viewModel.loadStart(nameOrId: viewModel.pokemon.name)
-                                }
-                        }
-                    }
+            Divider()
+
+            Text(viewModel.pokemon.species.flavorTextEntries.filter{
+                $0.language.name == "ja"
+            }.first?.flavorText ?? "生態情報取得エラー")
+
+            Divider()
+
+            HStack(spacing: 100) {
+                VStack(spacing: 20) {
+                    Text("おもさ")
+                    Text("\((Double(viewModel.pokemon.individual.weight) / 10).description) kg")
+                }
+
+                VStack(spacing: 20) {
+                    Text("たかさ")
+                    Text("\((Double(viewModel.pokemon.individual.height) / 10).description) m")
                 }
             }
         }
-        .navigationBarTitle("", displayMode: .inline)
     }
 }
 
 struct PokeDetailView_Previews: PreviewProvider {
     static var previews: some View {
-        
+
         NavigationView {
-            PokeDetailView(pokemon: Pokemon.mockPokemon)
+            PokeDetailView(viewModel: PokeDetailViewModel(pokemon: Pokemon.mock))
                 .previewDisplayName("Default View")
 
-                // プレビューでは、ナビゲーションバーや遷移前に戻るボタンの表示がされないので、力技
-                .navigationTitle("")
-
-                .toolbar {
-                    ToolbarItem(placement: .navigationBarLeading) {
-                        Button(action: {}, label: {
-                            HStack {
-                                Image(systemName: "chevron.left")
-                                Text("Pokémon Index")
-                            }
-                        })
-                        .tint(.accentColor)
-                    }
-                }
-        }
-
-        NavigationView {
-            PokeDetailView(viewModel: PokeDetailViewModel(pokemon: Pokemon.mockPokemon, pokemonSpecies: PokemonSpecies.mockPokemonSpecies, isLoading: false), pokemon: Pokemon.mockPokemon)
-                .previewDisplayName("Mock DI View")
-                .navigationTitle("")
-                .toolbar {
-                    ToolbarItem(placement: .navigationBarLeading) {
-                        Button(action: {}, label: {
-                            HStack {
-                                Image(systemName: "chevron.left")
-                                Text("Pokémon Index")
-                            }
-                        })
-                        .tint(.accentColor)
-                    }
-                }
-        }
-
-        NavigationView {
-            PokeDetailView(viewModel: PokeDetailViewModel(error: .jsonParseError("invalid text")), pokemon: Pokemon.mockPokemon)
-                .previewDisplayName("Error View")
+            // プレビューでは、ナビゲーションバーや遷移前に戻るボタンの表示がされないので、力技
                 .navigationTitle("")
                 .toolbar {
                     ToolbarItem(placement: .navigationBarLeading) {

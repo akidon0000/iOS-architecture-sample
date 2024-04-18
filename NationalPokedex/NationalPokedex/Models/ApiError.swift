@@ -7,7 +7,7 @@
 
 import Foundation
 
-/// APIを叩く際に発生する可能性のあるエラー一覧
+/// API通信時に発生する可能性のあるエラー
 enum ApiError: Error {
     case urlError
     case responseError(Error)
