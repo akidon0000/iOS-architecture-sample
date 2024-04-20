@@ -15,8 +15,10 @@ struct PokeRow: View {
             VStack {
                 Text("No. \(pokemon.id)")
                     .font(.system(size: 14))
+                    .tint(.black)
                 Text(pokemon.species.names.first?.name ?? "名前取得エラー")
                     .bold()
+                    .tint(.black)
             }
 
             if let imageUrl = pokemon.individual.sprites.frontDefault {

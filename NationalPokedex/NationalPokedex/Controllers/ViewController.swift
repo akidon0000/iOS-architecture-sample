@@ -19,10 +19,14 @@ class ViewController: UIViewController {
         let newViewController = UIHostingController(rootView: PokeIndexView(delegate: self))
 
         newViewController.view.translatesAutoresizingMaskIntoConstraints = false
-        newViewController.view.heightAnchor.constraint(equalToConstant: UIScreen.main.bounds.height).isActive = true
-        newViewController.view.widthAnchor.constraint(equalToConstant: UIScreen.main.bounds.width).isActive = true
 
         view.addSubview(newViewController.view)
+
+        NSLayoutConstraint.activate([
+            newViewController.view.heightAnchor.constraint(equalToConstant: UIScreen.main.bounds.height),
+            newViewController.view.widthAnchor.constraint(equalToConstant: UIScreen.main.bounds.width),
+            newViewController.view.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+        ])
     }
 }
 
