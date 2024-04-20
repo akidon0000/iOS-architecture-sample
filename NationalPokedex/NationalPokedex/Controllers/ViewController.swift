@@ -9,9 +9,11 @@ import UIKit
 import SwiftUI
 
 protocol ViewProtocol: AnyObject {
+    func loadStart()
+    func requestMorePokemons()
 }
 
-class ViewController: UIViewController {
+final class ViewController: UIViewController {
     private let model = PokeApiModel()
 
     override func viewDidLoad() {
@@ -31,4 +33,11 @@ class ViewController: UIViewController {
 }
 
 extension ViewController: ViewProtocol {
+    func loadStart() {
+        model.requestMorePokemons()
+    }
+
+    func requestMorePokemons() {
+        model.requestMorePokemons()
+    }
 }
