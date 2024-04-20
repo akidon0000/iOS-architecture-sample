@@ -8,15 +8,17 @@
 import SwiftUI
 
 struct PokeDetailView: View {
-    @State var viewModel: PokeDetailViewModel
+    weak var delegate: ViewProtocol?
+    let pokemon: Pokemon
 
-    init(viewModel: PokeDetailViewModel = PokeDetailViewModel()) {
-        _viewModel = State(wrappedValue: viewModel)
+    init(delegate: ViewProtocol?, pokemon: Pokemon) {
+        self.delegate = delegate
+        self.pokemon = pokemon
     }
 
     var body: some View {
         VStack {
-            if let imageUrlStr = viewModel.pokemon.individual.sprites.frontDefault {
+            if let imageUrlStr = pokemon.individual.sprites.frontDefault {
                 AsyncImage(url: URL(string: imageUrlStr)) { image in
                     image.resizable()
                         .scaleEffect(1.2)
@@ -32,7 +34,7 @@ struct PokeDetailView: View {
                 )
             }
 
-            Text(viewModel.pokemon.species.names.filter{
+            Text(pokemon.species.names.filter{
                 $0.language.name == "ja"
             }.first?.name ?? "名前取得エラー")
                 .font(.system(size: 40))
@@ -40,21 +42,21 @@ struct PokeDetailView: View {
 
             Divider()
 
-            Text("図鑑番号 No. \(viewModel.pokemon.id.description)")
+            Text("図鑑番号 No. \(pokemon.id.description)")
 
-            Text(viewModel.pokemon.species.genera.filter{
+            Text(pokemon.species.genera.filter{
                 $0.language.name == "ja"
             }.first?.genus ?? "属の取得エラー")
 
             HStack {
-                ForEach(viewModel.pokemon.individual.types) { type in
+                ForEach(pokemon.individual.types) { type in
                     Text("\(type.type.name)")
                 }
             }
 
             Divider()
 
-            Text(viewModel.pokemon.species.flavorTextEntries.filter{
+            Text(pokemon.species.flavorTextEntries.filter{
                 $0.language.name == "ja"
             }.first?.flavorText ?? "生態情報取得エラー")
 
@@ -63,12 +65,12 @@ struct PokeDetailView: View {
             HStack(spacing: 100) {
                 VStack(spacing: 20) {
                     Text("おもさ")
-                    Text("\((Double(viewModel.pokemon.individual.weight) / 10).description) kg")
+                    Text("\((Double(pokemon.individual.weight) / 10).description) kg")
                 }
 
                 VStack(spacing: 20) {
                     Text("たかさ")
-                    Text("\((Double(viewModel.pokemon.individual.height) / 10).description) m")
+                    Text("\((Double(pokemon.individual.height) / 10).description) m")
                 }
             }
         }
@@ -76,10 +78,10 @@ struct PokeDetailView: View {
 }
 
 struct PokeDetailView_Previews: PreviewProvider {
+    static let viewController = ViewController()
     static var previews: some View {
-
         NavigationView {
-            PokeDetailView(viewModel: PokeDetailViewModel(pokemon: Pokemon.mock))
+            PokeDetailView(delegate: viewController, pokemon: Pokemon.mock)
                 .previewDisplayName("Default View")
 
             // プレビューでは、ナビゲーションバーや遷移前に戻るボタンの表示がされないので、力技

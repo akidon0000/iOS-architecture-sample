@@ -28,9 +28,7 @@ struct PokeIndexView: View {
                     LazyVGrid(columns: gridLayout) {
                         ForEach(model.pokemons) { pokemon in
                             NavigationLink(
-                                destination: PokeDetailView(
-                                    viewModel: PokeDetailViewModel(pokemon: pokemon)
-                                )
+                                destination: PokeDetailView(delegate: self.delegate, pokemon: pokemon)
                             ) {
                                 PokeRow(pokemon: pokemon)
                                     .onAppear {
@@ -51,9 +49,6 @@ struct PokeIndexView: View {
             .ignoresSafeArea(edges: .bottom)
             .onAppear {
                 model.loadStart()
-            }
-            .navigationDestination(for: Pokemon.self) { pokemon in
-                PokeDetailView(viewModel: PokeDetailViewModel(pokemon: pokemon))
             }
         }
     }
