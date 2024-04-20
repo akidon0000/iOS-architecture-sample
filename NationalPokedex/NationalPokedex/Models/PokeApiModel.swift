@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import Observation
 
 protocol PokeApiModelProtocol {
     /// 指定されたポケモンのリストを更新し、新しいポケモンのデータを非同期に取得する
@@ -14,7 +15,33 @@ protocol PokeApiModelProtocol {
     func getNewPokemons(pokemons: [Pokemon]) async -> (Result<[Pokemon], ApiError>)
 }
 
-struct PokeApiModel: PokeApiModelProtocol {
+@Observable class PokeApiModel: PokeApiModelProtocol {
+    var pokemons = [Pokemon]()
+    var error: ApiError?
+
+    init(pokemons: [Pokemon] = [], error: ApiError? = nil) {
+        self.pokemons = pokemons
+        self.error = error
+    }
+
+    func loadStart() {
+        requestMorePokemons()
+    }
+
+    func requestMorePokemons() {
+        Task {
+            let result = await getNewPokemons(pokemons: pokemons)
+            await MainActor.run {
+                switch result {
+                case .success(let updatedPokemons):
+                    pokemons = updatedPokemons
+                case .failure(let error):
+                    self.error = error
+                }
+            }
+        }
+    }
+
     enum Endpoint: String {
         case pokemon = "pokemon"
         case pokemonSpecies = "pokemon-species"

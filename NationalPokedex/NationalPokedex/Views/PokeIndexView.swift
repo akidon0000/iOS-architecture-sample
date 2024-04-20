@@ -8,34 +8,38 @@
 import SwiftUI
 
 struct PokeIndexView: View {
-    @State private var navigatePath = [Pokemon]()
-    @State var viewModel: PokeIndexViewModel
+    weak var delegate: ViewProtocol?
+    var model: PokeApiModel
 
     let gridLayout = [GridItem(.adaptive(minimum: 100))]
 
-    init(viewModel: PokeIndexViewModel = PokeIndexViewModel()) {
-        _viewModel = State(wrappedValue: viewModel)
+    init(delegate: ViewProtocol?, model: PokeApiModel = PokeApiModel()) {
+        self.delegate = delegate
+        self.model = model
     }
 
     var body: some View {
-        NavigationStack(path: $navigatePath) {
+        NavigationStack() {
             ScrollView(showsIndicators: false) {
-                if let error = viewModel.error {
+                if let error = model.error {
                     Text(error.localizedDescription)
-                    Button("Retry", action: viewModel.loadStart)
+                    Button("Retry", action: model.loadStart)
                 } else {
                     LazyVGrid(columns: gridLayout) {
-                        ForEach(viewModel.pokemons) { pokemon in
-                            PokeRow(pokemon: pokemon)
-                                .onTapGesture {
-                                    navigatePath.append(pokemon)
-                                }
-                                .onAppear {
-                                    // 取得済みの最後のポケモンが表示された場合、新たに取得してくる
-                                    if viewModel.pokemons.last?.id == pokemon.id {
-                                        viewModel.requestMorePokemons()
+                        ForEach(model.pokemons) { pokemon in
+                            NavigationLink(
+                                destination: PokeDetailView(
+                                    viewModel: PokeDetailViewModel(pokemon: pokemon)
+                                )
+                            ) {
+                                PokeRow(pokemon: pokemon)
+                                    .onAppear {
+                                        // 取得済みの最後のポケモンが表示された場合、新たに取得してくる
+                                        if model.pokemons.last?.id == pokemon.id {
+                                            model.requestMorePokemons()
+                                        }
                                     }
-                                }
+                            }
                         }
                     }
                 }
@@ -46,7 +50,7 @@ struct PokeIndexView: View {
             .padding(10)
             .ignoresSafeArea(edges: .bottom)
             .onAppear {
-                viewModel.loadStart()
+                model.loadStart()
             }
             .navigationDestination(for: Pokemon.self) { pokemon in
                 PokeDetailView(viewModel: PokeDetailViewModel(pokemon: pokemon))
@@ -56,11 +60,12 @@ struct PokeIndexView: View {
 }
 
 struct PokeIndexView_Previews: PreviewProvider {
+    static let viewController = ViewController()
     static var previews: some View {
-        PokeIndexView()
+        PokeIndexView(delegate: viewController, model: PokeApiModel())
             .previewDisplayName("Default View")
 
-        PokeIndexView(viewModel: PokeIndexViewModel(error: ApiError.responseDataEmpty))
+        PokeIndexView(delegate: viewController, model: PokeApiModel(error: ApiError.responseDataEmpty))
             .previewDisplayName("Error View")
     }
 }

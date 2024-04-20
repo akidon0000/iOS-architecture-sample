@@ -16,7 +16,7 @@ class ViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        let newViewController = UIHostingController(rootView: PokeIndexView(viewModel: PokeIndexViewModel()))
+        let newViewController = UIHostingController(rootView: PokeIndexView(delegate: self))
 
         newViewController.view.translatesAutoresizingMaskIntoConstraints = false
         newViewController.view.heightAnchor.constraint(equalToConstant: UIScreen.main.bounds.height).isActive = true
