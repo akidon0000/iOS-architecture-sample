@@ -23,7 +23,7 @@ struct PokeIndexView: View {
             ScrollView(showsIndicators: false) {
                 if let error = model.error {
                     Text(error.localizedDescription)
-                    Button("Retry", action: model.loadStart)
+                    Button("Retry", action: delegate?.loadStart ?? {})
                 } else {
                     LazyVGrid(columns: gridLayout) {
                         ForEach(model.pokemons) { pokemon in
@@ -34,7 +34,7 @@ struct PokeIndexView: View {
                                     .onAppear {
                                         // 取得済みの最後のポケモンが表示された場合、新たに取得してくる
                                         if model.pokemons.last?.id == pokemon.id {
-                                            model.requestMorePokemons()
+                                            delegate?.requestMorePokemons()
                                         }
                                     }
                             }
@@ -48,7 +48,7 @@ struct PokeIndexView: View {
             .padding(10)
             .ignoresSafeArea(edges: .bottom)
             .onAppear {
-                model.loadStart()
+                delegate?.loadStart()
             }
         }
     }

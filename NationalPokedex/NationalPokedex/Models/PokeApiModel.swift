@@ -8,14 +8,7 @@
 import Foundation
 import Observation
 
-protocol PokeApiModelProtocol {
-    /// 指定されたポケモンのリストを更新し、新しいポケモンのデータを非同期に取得する
-    /// - Parameter pokemons: 現在のポケモンの配列
-    /// - Returns: 更新後のポケモンの配列を含むResultオブジェクト
-    func getNewPokemons(pokemons: [Pokemon]) async -> (Result<[Pokemon], ApiError>)
-}
-
-@Observable final class PokeApiModel: PokeApiModelProtocol {
+@Observable final class PokeApiModel {
     var pokemons = [Pokemon]()
     var error: ApiError?
 
