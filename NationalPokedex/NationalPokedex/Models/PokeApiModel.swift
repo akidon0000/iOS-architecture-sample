@@ -6,31 +6,15 @@
 //
 
 import Foundation
-import Observation
 
-@Observable final class PokeApiModel {
-    var pokemons = [Pokemon]()
-    var error: ApiError?
+protocol PokeApiModelProtocol {
+    /// 指定されたポケモンのリストを更新し、新しいポケモンのデータを非同期に取得する
+    /// - Parameter pokemons: 現在のポケモンの配列
+    /// - Returns: 更新後のポケモンの配列を含むResultオブジェクト
+    func getNewPokemons(pokemons: [Pokemon]) async -> (Result<[Pokemon], ApiError>)
+}
 
-    init(pokemons: [Pokemon] = [], error: ApiError? = nil) {
-        self.pokemons = pokemons
-        self.error = error
-    }
-
-    func requestMorePokemons() {
-        Task {
-            let result = await getNewPokemons(pokemons: pokemons)
-            await MainActor.run {
-                switch result {
-                case .success(let updatedPokemons):
-                    pokemons = updatedPokemons
-                case .failure(let error):
-                    self.error = error
-                }
-            }
-        }
-    }
-
+struct PokeApiModel: PokeApiModelProtocol {
     enum Endpoint: String {
         case pokemon = "pokemon"
         case pokemonSpecies = "pokemon-species"
@@ -82,7 +66,7 @@ import Observation
     /// 指定されたポケモンのリストを更新し、新しいポケモンのデータを非同期に取得する
     /// - Parameter pokemons: 現在のポケモンの配列
     /// - Returns: 更新後のポケモンの配列を含むResultオブジェクト
-    private func getNewPokemons(pokemons: [Pokemon]) async -> (Result<[Pokemon], ApiError>) {
+    func getNewPokemons(pokemons: [Pokemon]) async -> (Result<[Pokemon], ApiError>) {
         // ポケモン配列が0の場合は図鑑番号1番から、内容が存在する場合は最後のポケモン番号+1から　拡張性を考えてcountは使用しない
         let startPokemonId = pokemons.isEmpty ? 1 : pokemons.last!.id + 1
         let endPokemonId = startPokemonId + 20 // 1回の更新で20体のポケモンを取得してくる

@@ -8,38 +8,43 @@
 import SwiftUI
 
 struct PokeIndexView: View {
-    weak var delegate: ViewProtocol?
-    var model: PokeApiModel
+    weak var delegate: PokeIndexPresenterProtocol?
 
     let gridLayout = [GridItem(.adaptive(minimum: 100))]
 
-    init(delegate: ViewProtocol?, model: PokeApiModel = PokeApiModel()) {
-        self.delegate = delegate
-        self.model = model
+    let type: StateType
+    enum StateType {
+        case display([Pokemon])
+        case notFound
+        case error(ApiError)
     }
 
     var body: some View {
         NavigationStack() {
             ScrollView(showsIndicators: false) {
-                if let error = model.error {
-                    Text(error.localizedDescription)
-                    Button("Retry", action: delegate?.loadStart ?? {})
-                } else {
+                switch type {
+                case .display(let pokemons):
                     LazyVGrid(columns: gridLayout) {
-                        ForEach(model.pokemons) { pokemon in
+                        ForEach(pokemons) { pokemon in
                             NavigationLink(
-                                destination: PokeDetailView(delegate: self.delegate, pokemon: pokemon)
+                                destination: delegate?.navigate(.detail(pokemon))
                             ) {
                                 PokeRow(pokemon: pokemon)
                                     .onAppear {
                                         // 取得済みの最後のポケモンが表示された場合、新たに取得してくる
-                                        if model.pokemons.last?.id == pokemon.id {
-                                            delegate?.requestMorePokemons()
+                                        if pokemons.last?.id == pokemon.id {
+                                            delegate?.requestMorePokemons(pokemons: pokemons)
                                         }
                                     }
                             }
                         }
                     }
+                case .error(let error):
+                    Text(error.localizedDescription)
+                    Button("Retry", action: delegate?.loadStart ?? {})
+                case .notFound:
+                    Text("NotFound")
+                    Button("Retry", action: delegate?.loadStart ?? {})
                 }
             }
             .navigationTitle("Pokémon Index")
@@ -48,19 +53,34 @@ struct PokeIndexView: View {
             .padding(10)
             .ignoresSafeArea(edges: .bottom)
             .onAppear {
-                delegate?.loadStart()
+                // ナビゲーションから戻ってきた場合のみ、処理をスキップ
+                if !(delegate?.isNavigating ?? false) {
+                    self.delegate?.loadStart()
+                }
+                delegate?.isNavigating = false
+            }
+            .onDisappear {
+                // ナビゲーションへ移動するときに状態を設定
+                delegate?.isNavigating = true
             }
         }
     }
 }
 
 struct PokeIndexView_Previews: PreviewProvider {
-    static let viewController = ViewController()
+    static var pokeIndexPresenter: PokeIndexPresenter {
+        let presenter = PokeIndexPresenter()
+        let view = PokeIndexView(delegate: presenter,type: .display([]))
+        let model = PokeApiModel()
+        presenter.inject(view: view, model: model)
+        return presenter
+    }
+
     static var previews: some View {
-        PokeIndexView(delegate: viewController, model: PokeApiModel())
+        PokeIndexView(type: .display([Pokemon.mock]))
             .previewDisplayName("Default View")
 
-        PokeIndexView(delegate: viewController, model: PokeApiModel(error: ApiError.responseDataEmpty))
+        PokeIndexView(type: .notFound)
             .previewDisplayName("Error View")
     }
 }

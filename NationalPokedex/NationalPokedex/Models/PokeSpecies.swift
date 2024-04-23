@@ -63,7 +63,7 @@ extension PokeSpecies {
                           url: "https://pokeapi.co/api/v2/pokemon-color/5/"),
         evolutionChain: EvolutionChain(url: "https://pokeapi.co/api/v2/evolution-chain/1/"),
         genera: [
-            Genera(genus: "たねポケモン", language: NameAndUrl(name: "ja-Hrkt", url: "https://pokeapi.co/api/v2/language/1/"))],
+            Genera(genus: "たねポケモン", language: NameAndUrl(name: "ja", url: "https://pokeapi.co/api/v2/language/1/"))],
         names: [
             Name(
                 name: "フシギダネ",
