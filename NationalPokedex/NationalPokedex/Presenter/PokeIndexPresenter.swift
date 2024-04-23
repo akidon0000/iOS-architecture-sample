@@ -7,7 +7,8 @@
 
 import Observation
 
-@Observable final class PokeIndexViewModel {
+@Observable final class PokeIndexPresenter {
+    let router = PokeIndexRouter()
     let model: PokeApiModelProtocol
     var pokemons: [Pokemon]
     var error: ApiError?
