@@ -9,9 +9,12 @@ import SwiftUI
 
 @main
 struct NationalPokedexApp: App {
+    private let actionCreator = ActionCreator()
+    private let pokeIndexStore = PokeIndexStore.shared
+
     var body: some Scene {
         WindowGroup {
-            PokeIndexView()
+            PokeIndexView(actionCreator: actionCreator, pokeIndexStore: pokeIndexStore)
         }
     }
 }

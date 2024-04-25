@@ -8,35 +8,33 @@
 import SwiftUI
 
 struct PokeIndexView: View {
+    private let actionCreator: ActionCreator
+    @StateObject var pokeIndexStore: PokeIndexStore
     @State private var navigatePath = [Pokemon]()
-    @State var viewModel: PokeIndexViewModel
 
     let gridLayout = [GridItem(.adaptive(minimum: 100))]
 
-    init(viewModel: PokeIndexViewModel = PokeIndexViewModel()) {
-        _viewModel = State(wrappedValue: viewModel)
+    init(actionCreator: ActionCreator = ActionCreator(),
+         pokeIndexStore: PokeIndexStore = .shared) {
+        self.actionCreator = actionCreator
+        _pokeIndexStore = StateObject(wrappedValue: pokeIndexStore)
     }
 
     var body: some View {
         NavigationStack(path: $navigatePath) {
             ScrollView(showsIndicators: false) {
-                if let error = viewModel.error {
-                    Text(error.localizedDescription)
-                    Button("Retry", action: viewModel.loadStart)
-                } else {
-                    LazyVGrid(columns: gridLayout) {
-                        ForEach(viewModel.pokemons) { pokemon in
-                            PokeRow(pokemon: pokemon)
-                                .onTapGesture {
-                                    navigatePath.append(pokemon)
+                LazyVGrid(columns: gridLayout) {
+                    ForEach(pokeIndexStore.pokemons) { pokemon in
+                        PokeRow(pokemon: pokemon)
+                            .onTapGesture {
+                                navigatePath.append(pokemon)
+                            }
+                            .onAppear {
+                                // 取得済みの最後のポケモンが表示された場合、新たに取得してくる
+                                if pokeIndexStore.pokemons.last?.id == pokemon.id {
+                                    actionCreator.requestMorePokemons(pokemons: pokeIndexStore.pokemons)
                                 }
-                                .onAppear {
-                                    // 取得済みの最後のポケモンが表示された場合、新たに取得してくる
-                                    if viewModel.pokemons.last?.id == pokemon.id {
-                                        viewModel.requestMorePokemons()
-                                    }
-                                }
-                        }
+                            }
                     }
                 }
             }
@@ -46,10 +44,13 @@ struct PokeIndexView: View {
             .padding(10)
             .ignoresSafeArea(edges: .bottom)
             .onAppear {
-                viewModel.loadStart()
+                actionCreator.requestMorePokemons(pokemons: pokeIndexStore.pokemons)
             }
             .navigationDestination(for: Pokemon.self) { pokemon in
-                PokeDetailView(viewModel: PokeDetailViewModel(pokemon: pokemon))
+                PokeDetailView()
+                    .onAppear {
+                        actionCreator.selectedPokemon(pokemon: pokemon)
+                    }
             }
         }
     }
@@ -59,8 +60,5 @@ struct PokeIndexView_Previews: PreviewProvider {
     static var previews: some View {
         PokeIndexView()
             .previewDisplayName("Default View")
-
-        PokeIndexView(viewModel: PokeIndexViewModel(error: ApiError.responseDataEmpty))
-            .previewDisplayName("Error View")
     }
 }
