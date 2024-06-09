@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import shared
 
 struct PokeIndexView: View {
     @State private var navigatePath = [Pokemon]()
@@ -18,6 +19,7 @@ struct PokeIndexView: View {
     }
 
     var body: some View {
+        Text(Greeting().greet())
         NavigationStack(path: $navigatePath) {
             ScrollView(showsIndicators: false) {
                 if let error = viewModel.error {
