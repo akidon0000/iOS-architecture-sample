@@ -6,11 +6,12 @@
 //
 
 import Observation
+import shared
 
 @Observable final class PokeDetailViewModel {
     var pokemon: Pokemon
 
-    init(pokemon: Pokemon = Pokemon.mock) {
+    init(pokemon: Pokemon = Pokemon.companion.mock) {
         self.pokemon = pokemon
     }
 }

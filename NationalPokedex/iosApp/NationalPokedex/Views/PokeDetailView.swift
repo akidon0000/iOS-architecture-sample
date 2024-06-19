@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import shared
 
 struct PokeDetailView: View {
     @State var viewModel: PokeDetailViewModel
@@ -47,8 +48,8 @@ struct PokeDetailView: View {
             }.first?.genus ?? "属の取得エラー")
 
             HStack {
-                ForEach(viewModel.pokemon.individual.types) { type in
-                    Text("\(type.type.name)")
+                ForEach(0 ..< viewModel.pokemon.individual.types.count) { index in
+                    Text("\(viewModel.pokemon.individual.types[index].type.name)")
                 }
             }
 
@@ -79,7 +80,7 @@ struct PokeDetailView_Previews: PreviewProvider {
     static var previews: some View {
 
         NavigationView {
-            PokeDetailView(viewModel: PokeDetailViewModel(pokemon: Pokemon.mock))
+            PokeDetailView(viewModel: PokeDetailViewModel(pokemon: Pokemon.companion.mock))
                 .previewDisplayName("Default View")
 
             // プレビューでは、ナビゲーションバーや遷移前に戻るボタンの表示がされないので、力技

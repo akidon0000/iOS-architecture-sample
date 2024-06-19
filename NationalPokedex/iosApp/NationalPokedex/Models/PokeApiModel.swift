@@ -6,12 +6,14 @@
 //
 
 import Foundation
+import shared
 
 protocol PokeApiModelProtocol {
     /// 指定されたポケモンのリストを更新し、新しいポケモンのデータを非同期に取得する
     /// - Parameter pokemons: 現在のポケモンの配列
     /// - Returns: 更新後のポケモンの配列を含むResultオブジェクト
-    func getNewPokemons(pokemons: [Pokemon]) async -> (Result<[Pokemon], ApiError>)
+//    func getNewPokemons(pokemons: [Pokemon]) async -> (Result<[Pokemon], ApiError>)
+    func fetchPokeomns()
 }
 
 struct PokeApiModel: PokeApiModelProtocol {
@@ -66,38 +68,68 @@ struct PokeApiModel: PokeApiModelProtocol {
     /// 指定されたポケモンのリストを更新し、新しいポケモンのデータを非同期に取得する
     /// - Parameter pokemons: 現在のポケモンの配列
     /// - Returns: 更新後のポケモンの配列を含むResultオブジェクト
-    func getNewPokemons(pokemons: [Pokemon]) async -> (Result<[Pokemon], ApiError>) {
-        // ポケモン配列が0の場合は図鑑番号1番から、内容が存在する場合は最後のポケモン番号+1から　拡張性を考えてcountは使用しない
-        let startPokemonId = pokemons.isEmpty ? 1 : pokemons.last!.id + 1
-        let endPokemonId = startPokemonId + 20 // 1回の更新で20体のポケモンを取得してくる
-        var newPokemons = pokemons
+//    func getNewPokemons(pokemons: [Pokemon]) async -> (Result<[Pokemon], ApiError>) {
+//        // ポケモン配列が0の場合は図鑑番号1番から、内容が存在する場合は最後のポケモン番号+1から　拡張性を考えてcountは使用しない
+//        let startPokemonId = pokemons.isEmpty ? 1 : pokemons.last!.id + 1
+//        let endPokemonId = startPokemonId + 20 // 1回の更新で20体のポケモンを取得してくる
+//        var newPokemons = pokemons
+//
+//        await withTaskGroup(of: Result<(PokeIndividual, PokeSpecies), ApiError>.self) { group in
+//            for i in startPokemonId..<endPokemonId {
+//                group.addTask {
+//                    // 1つのポケモンにはIndividual(個体)とSpecies(種&多言語)の2種類の情報を持つ
+//                    async let individualResult: Result<PokeIndividual, ApiError> = self.getPokeData(id: i.description, endpoint: .pokemon)
+//                    async let speciesResult: Result<PokeSpecies, ApiError> = self.getPokeData(id: i.description, endpoint: .pokemonSpecies)
+//
+//                    switch await (individualResult, speciesResult) {
+//                    case (.success(let individualResult), .success(let speciesResult)):
+//                        return .success((individualResult, speciesResult))
+//
+//                    case (.failure(let error), _), (_, .failure(let error)):
+//                        return .failure(error)
+//                    }
+//                }
+//            }
+//            for await result in group {
+//                switch result {
+//                case .success(let (individual, species)):
+////                    print("===========")
+////                    print(individual)
+////                    print("-----------")
+////                    print(species)
+////                    let pokemon = Pokemon(id: <#T##Int32#>, individual: <#T##PokeIndividual#>, species: <#T##PokeSpecies#>)
+////                    let pokemon = Pokemon(id: Int32(individual.id), individual: individual, species: species)
+//                    let pokemon = Pokemon(id: Int32(individual.id), individual: PokeIndividual.companion.mock, species: PokeSpecies.companion.mock)
+////                    newPokemons.append(pokemon)
+//                case .failure(let error):
+//                    print("API通信エラー: \(error)")
+//                }
+//            }
+//        }
+//        return .success(newPokemons.sorted{ $0.id < $1.id})
+//    }
 
-        await withTaskGroup(of: Result<(PokeIndividual, PokeSpecies), ApiError>.self) { group in
-            for i in startPokemonId..<endPokemonId {
-                group.addTask {
-                    // 1つのポケモンにはIndividual(個体)とSpecies(種&多言語)の2種類の情報を持つ
-                    async let individualResult: Result<PokeIndividual, ApiError> = self.getPokeData(id: i.description, endpoint: .pokemon)
-                    async let speciesResult: Result<PokeSpecies, ApiError> = self.getPokeData(id: i.description, endpoint: .pokemonSpecies)
+//    @Published var pokemonResponse: PokemonResponse = .Loading.shared
 
-                    switch await (individualResult, speciesResult) {
-                    case (.success(let individualResult), .success(let speciesResult)):
-                        return .success((individualResult, speciesResult))
+//    init() {
+//        fetchPokeomns()
+//    }
 
-                    case (.failure(let error), _), (_, .failure(let error)):
-                        return .failure(error)
-                    }
-                }
-            }
-            for await result in group {
-                switch result {
-                case .success(let (individual, species)):
-                    let pokemon = Pokemon(id: individual.id, individual: individual, species: species)
-                    newPokemons.append(pokemon)
-                case .failure(let error):
-                    print("API通信エラー: \(error)")
-                }
-            }
-        }
-        return .success(newPokemons.sorted{ $0.id < $1.id})
+
+    func fetchPokeomns() {
+//        GetPokeListUseCase().invoke { response, error in
+
+//            if let successResponse = response as? PokemonResponse.Success {
+//                print(successResponse.data)
+//                self.pokemonResponse = .Success(data: successResponse.data)
+//            }
+//             else if let error = error as? PokemonResponse.Error {
+//                 print(error)
+//                self.pokemonResponse = .Error(e: error.e)
+//            }
+//             else {
+//                self.pokemonResponse = .Loading.shared
+//            }
+//        }
     }
 }

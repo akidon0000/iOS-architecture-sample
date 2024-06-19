@@ -6,6 +6,7 @@
 //
 
 import Observation
+import shared
 
 @Observable final class PokeIndexViewModel {
     let model: PokeApiModelProtocol
@@ -19,20 +20,24 @@ import Observation
     }
 
     func loadStart() {
-        requestMorePokemons()
+        NativeFlow<AnyObject>(flow: Greeting().greet2()).watch { value in
+            print(value)
+        }
+//        model.fetchPokeomns()
+//        requestMorePokemons()
     }
 
     func requestMorePokemons() {
         Task {
-            let result = await model.getNewPokemons(pokemons: pokemons)
-            await MainActor.run {
-                switch result {
-                case .success(let updatedPokemons):
-                    pokemons = updatedPokemons
-                case .failure(let error):
-                    self.error = error
-                }
-            }
+//            let result = await model.getNewPokemons(pokemons: pokemons)
+//            await MainActor.run {
+//                switch result {
+//                case .success(let updatedPokemons):
+//                    pokemons = updatedPokemons
+//                case .failure(let error):
+//                    self.error = error
+//                }
+//            }
         }
     }
 }

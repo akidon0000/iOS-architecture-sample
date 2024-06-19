@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import shared
 
 struct PokeRow: View {
     let pokemon: Pokemon
@@ -37,6 +38,6 @@ struct PokeRow: View {
 
 struct PokeRow_Previews: PreviewProvider {
     static var previews: some View {
-        PokeRow(pokemon: Pokemon.mock)
+        PokeRow(pokemon: Pokemon.companion.mock)
     }
 }
