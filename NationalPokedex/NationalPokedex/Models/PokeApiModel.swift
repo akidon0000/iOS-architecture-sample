@@ -29,12 +29,19 @@ struct PokeApiModel: PokeApiModelProtocol {
     func getNewPokemons(pokemons: [Pokemon]) async -> Result<[Pokemon], ApiError> {
         // ポケモン配列が0の場合は図鑑番号1番から、内容が存在する場合は最後のポケモン番号+1から
         let startPokemonId = pokemons.isEmpty ? 1 : pokemons.last!.id + 1
-        let newPokemons = await getMultiplePokemon(startId: startPokemonId, count: 20)
-        return .success(pokemons + newPokemons)
+        let newPokemonsResult = await getMultiplePokemon(startId: startPokemonId, count: 20)
+
+        switch newPokemonsResult {
+        case .success(let newPokemons):
+            return .success(pokemons + newPokemons)
+        case .failure(let error):
+            return .failure(error)
+        }
     }
 
-    private func getMultiplePokemon(startId: Int, count: Int) async -> [Pokemon] {
+    private func getMultiplePokemon(startId: Int, count: Int) async -> Result<[Pokemon], ApiError> {
         var pokemonList: [Pokemon] = []
+        var encounteredError: ApiError?
 
         for id in startId..<(startId + count) {
             let result = await getNewPokemon(id: id.description)
@@ -43,11 +50,17 @@ struct PokeApiModel: PokeApiModelProtocol {
                 pokemonList.append(pokemon)
             case .failure(let error):
                 print("Failed to get Pokemon with id \(id): \(error)")
+                encounteredError = error
             }
         }
 
-        return pokemonList
+        if let error = encounteredError {
+            return .failure(error)
+        } else {
+            return .success(pokemonList)
+        }
     }
+
 
     private func getNewPokemon(id: String) async -> (Result<Pokemon, ApiError>) {
         let individualResult: Result<PokeIndividual, ApiError> = await self.getPokeData(id: id, endpoint: .pokemon)
