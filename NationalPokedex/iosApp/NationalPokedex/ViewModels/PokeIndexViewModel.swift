@@ -20,24 +20,35 @@ import shared
     }
 
     func loadStart() {
-        NativeFlow<AnyObject>(flow: Greeting().greet2()).watch { value in
-            print(value)
-        }
-//        model.fetchPokeomns()
-//        requestMorePokemons()
+        requestMorePokemons()
     }
 
     func requestMorePokemons() {
-        Task {
-//            let result = await model.getNewPokemons(pokemons: pokemons)
-//            await MainActor.run {
-//                switch result {
-//                case .success(let updatedPokemons):
-//                    pokemons = updatedPokemons
-//                case .failure(let error):
-//                    self.error = error
-//                }
-//            }
+        PokeApiModel().getNewPokemons(pokemons: pokemons) { result, error in
+            if let result = result {
+                switch result {
+                case is ResultSuccess<NSArray>:
+                    if let successResult = result as? ResultSuccess<NSArray> {
+                        if let newPokemons = successResult.value as? [Pokemon] {
+                            DispatchQueue.main.async {
+                                self.pokemons.append(contentsOf: newPokemons)
+                                print("Success: \(newPokemons)")
+                            }
+                        }
+                    }
+                case is ResultFailure<ApiError>:
+                    if let failureResult = result as? ResultFailure<ApiError> {
+                        DispatchQueue.main.async {
+                            self.error = failureResult.error
+                            print("Error: \(failureResult.error)")
+                        }
+                    }
+                default:
+                    print("Unknown result type")
+                }
+            } else if let error = error {
+                print("Error: \(error.localizedDescription)")
+            }
         }
     }
 }

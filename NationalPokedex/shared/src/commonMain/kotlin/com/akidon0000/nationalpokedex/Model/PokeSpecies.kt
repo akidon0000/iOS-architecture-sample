@@ -7,9 +7,13 @@ import kotlinx.serialization.Serializable
 data class PokeSpecies(
     val id: Int,
     val color: NameAndUrl,
+
+    @SerialName("evolution_chain")
     val evolutionChain: EvolutionChain,
     val genera: List<Genera>,
     val names: List<Name>,
+
+    @SerialName("flavor_text_entries")
     val flavorTextEntries: List<FlavorTextEntries>
 ) {
     companion object {
@@ -53,6 +57,7 @@ data class Name(
 
 @Serializable
 data class FlavorTextEntries(
+    @SerialName("flavor_text")
     val flavorText: String,
     val language: NameAndUrl
 )

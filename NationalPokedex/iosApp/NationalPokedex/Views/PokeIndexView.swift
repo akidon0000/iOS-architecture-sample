@@ -19,22 +19,21 @@ struct PokeIndexView: View {
     }
 
     var body: some View {
-//        Text(Greeting().greet2().collect(collector: <#T##Kotlinx_coroutines_coreFlowCollector#>, completionHandler: <#T##(Error?) -> Void#>) as? String ?? "nilss")
         NavigationStack(path: $navigatePath) {
             ScrollView(showsIndicators: false) {
                 if let error = viewModel.error {
-                    Text(error.localizedDescription)
+                    Text(viewModel.error.debugDescription)
                     Button("Retry", action: viewModel.loadStart)
                 } else {
                     LazyVGrid(columns: gridLayout) {
-                        ForEach(0 ..< viewModel.pokemons.count) { index in
-                            PokeRow(pokemon: viewModel.pokemons[index])
+                        ForEach(viewModel.pokemons) { pokemon in
+                            PokeRow(pokemon: pokemon)
                                 .onTapGesture {
-                                    navigatePath.append(viewModel.pokemons[index])
+                                    navigatePath.append(pokemon)
                                 }
                                 .onAppear {
                                     // 取得済みの最後のポケモンが表示された場合、新たに取得してくる
-                                    if viewModel.pokemons.last?.id == viewModel.pokemons[index].id {
+                                    if viewModel.pokemons.last?.id == pokemon.id {
                                         viewModel.requestMorePokemons()
                                     }
                                 }
@@ -62,7 +61,7 @@ struct PokeIndexView_Previews: PreviewProvider {
         PokeIndexView()
             .previewDisplayName("Default View")
 
-        PokeIndexView(viewModel: PokeIndexViewModel(error: ApiError.responseDataEmpty))
+        PokeIndexView(viewModel: PokeIndexViewModel(error: ApiError.UrlError()))
             .previewDisplayName("Error View")
     }
 }
