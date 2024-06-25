@@ -16,16 +16,23 @@ protocol PokeApiModelProtocol {
 
 struct PokeApiModel: PokeApiModelProtocol {
     enum Endpoint: String {
-        case pokemon = "pokemon"
-        case pokemonSpecies = "pokemon-species"
+        case pokemon = "pokemon/"
+        case pokemonSpecies = "pokemon-species/"
 
-        static let baseURL = "https://pokeapi.co/api/v2/"
+        static let baseURL = "https://pokeapi.co/api/"
+        static let version = "v2/"
 
+        /// 指定されたエンドポイントとIDに基づいてURLを生成する
+        /// - Parameter id: ポケモンのID
+        /// - Returns: 生成されたURL
         func url(for id: String) -> URL? {
-            URL(string: "\(Endpoint.baseURL)\(self.rawValue)/\(id)")
+            URL(string: "\(Endpoint.baseURL)\(Endpoint.version)\(self.rawValue)\(id)")
         }
     }
 
+    /// 指定されたポケモンのリストを更新し、新しいポケモンのデータを非同期に取得する
+    /// - Parameter pokemons: 現在のポケモンの配列
+    /// - Returns: 更新後のポケモンの配列を含むResultオブジェクト
     func getNewPokemons(pokemons: [Pokemon]) async -> Result<[Pokemon], ApiError> {
         // ポケモン配列が0の場合は図鑑番号1番から、内容が存在する場合は最後のポケモン番号+1から
         let startPokemonId = pokemons.isEmpty ? 1 : pokemons.last!.id + 1
@@ -39,6 +46,11 @@ struct PokeApiModel: PokeApiModelProtocol {
         }
     }
 
+    /// 複数のポケモンのデータを非同期に取得する
+    /// - Parameters:
+    ///   - startId: 取得を開始するポケモンのID
+    ///   - count: 取得するポケモンの数
+    /// - Returns: 取得したポケモンの配列を含むResultオブジェクト
     private func getMultiplePokemon(startId: Int, count: Int) async -> Result<[Pokemon], ApiError> {
         var pokemonList: [Pokemon] = []
         var encounteredError: ApiError?
@@ -61,11 +73,15 @@ struct PokeApiModel: PokeApiModelProtocol {
         }
     }
 
-
+    /// 指定されたIDのポケモンのデータを非同期に取得する
+    /// - Parameter id: ポケモンのID
+    /// - Returns: 取得したポケモンを含むResultオブジェクト
     private func getNewPokemon(id: String) async -> (Result<Pokemon, ApiError>) {
+        // 個別のポケモンデータと種データを非同期に取得
         let individualResult: Result<PokeIndividual, ApiError> = await self.getPokeData(id: id, endpoint: .pokemon)
         let speciesResult: Result<PokeSpecies, ApiError> = await self.getPokeData(id: id, endpoint: .pokemonSpecies)
 
+        // 両方のデータが成功した場合、ポケモンオブジェクトを作成
         switch (individualResult, speciesResult) {
         case (.success(let individualResult), .success(let speciesResult)):
             return .success(Pokemon(id: individualResult.id, individual: individualResult, species: speciesResult))
@@ -75,6 +91,11 @@ struct PokeApiModel: PokeApiModelProtocol {
         }
     }
 
+    /// 指定されたエンドポイントとIDに基づいてデータを非同期に取得する
+    /// - Parameters:
+    ///   - id: ポケモンのID
+    ///   - endpoint: エンドポイント
+    /// - Returns: 取得したデータを含むResultオブジェクト
     private func getPokeData<T: Decodable>(id: String, endpoint: Endpoint) async -> Result<T, ApiError> {
         guard let url = endpoint.url(for: id) else {
             return .failure(.urlError)
