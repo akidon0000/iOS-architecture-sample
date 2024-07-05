@@ -11,7 +11,7 @@ struct PokeIndexView: View {
     @State private var navigatePath = [Pokemon]()
     @State var viewModel: PokeIndexViewModel
 
-    let gridLayout = [GridItem(.adaptive(minimum: 100))]
+    private let gridLayout = [GridItem(.adaptive(minimum: 100))]
 
     init(viewModel: PokeIndexViewModel = PokeIndexViewModel()) {
         _viewModel = State(wrappedValue: viewModel)

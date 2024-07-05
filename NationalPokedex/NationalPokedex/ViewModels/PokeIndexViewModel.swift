@@ -7,7 +7,8 @@
 
 import Observation
 
-@Observable final class PokeIndexViewModel {
+@Observable
+final class PokeIndexViewModel {
     let model: PokeApiModelProtocol
     var pokemons: [Pokemon]
     var error: ApiError?
@@ -25,13 +26,11 @@ import Observation
     func requestMorePokemons() {
         Task {
             let result = await model.getNewPokemons(pokemons: pokemons)
-            await MainActor.run {
-                switch result {
-                case .success(let updatedPokemons):
-                    pokemons = updatedPokemons
-                case .failure(let error):
-                    self.error = error
-                }
+            switch result {
+            case .success(let updatedPokemons):
+                pokemons = updatedPokemons
+            case .failure(let error):
+                self.error = error
             }
         }
     }

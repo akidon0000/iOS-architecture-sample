@@ -7,7 +7,8 @@
 
 import Observation
 
-@Observable final class PokeDetailViewModel {
+@Observable
+final class PokeDetailViewModel {
     var pokemon: Pokemon
 
     init(pokemon: Pokemon = Pokemon.mock) {
