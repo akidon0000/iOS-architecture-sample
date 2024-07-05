@@ -1,5 +1,5 @@
 //
-//  PokeApiModel.swift
+//  PokeApi.swift
 //  NationalPokedex
 //
 //  Created by Akihiro Matsuyama on 2024/04/05.
@@ -7,14 +7,14 @@
 
 import Foundation
 
-protocol PokeApiModelProtocol {
+protocol PokeApiInterface {
     /// 指定されたポケモンのリストを更新し、新しいポケモンのデータを非同期に取得する
     /// - Parameter pokemons: 現在のポケモンの配列
     /// - Returns: 更新後のポケモンの配列を含むResultオブジェクト
     func getNewPokemons(pokemons: [Pokemon]) async -> (Result<[Pokemon], ApiError>)
 }
 
-struct PokeApiModel: PokeApiModelProtocol {
+struct PokeApi: PokeApiInterface {
     enum Endpoint: String {
         case pokemon = "pokemon/"
         case pokemonSpecies = "pokemon-species/"

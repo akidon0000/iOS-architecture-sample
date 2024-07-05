@@ -9,11 +9,11 @@ import Observation
 
 @Observable
 final class PokeIndexViewModel {
-    let model: PokeApiModelProtocol
+    let model: PokeApiInterface
     var pokemons: [Pokemon]
     var error: ApiError?
 
-    init(model: PokeApiModel = PokeApiModel(), pokemons: [Pokemon] = [Pokemon](), error: ApiError? = nil) {
+    init(model: PokeApi = PokeApi(), pokemons: [Pokemon] = [Pokemon](), error: ApiError? = nil) {
         self.model = model
         self.pokemons = pokemons
         self.error = error
